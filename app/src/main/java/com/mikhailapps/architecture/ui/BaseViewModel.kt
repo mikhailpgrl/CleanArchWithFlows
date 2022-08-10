@@ -7,12 +7,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 open class BaseViewModel() : ViewModel() {
 
     protected fun <T> MutableStateFlow() = MutableStateFlow<Resource<T>>(Resource.idle())
 
 
+    
     protected fun <T, S> Flow<Resource<T>>.collectRequest(
         state: MutableStateFlow<Resource<T>>,
         mappedData: (T) -> S
@@ -33,6 +35,7 @@ open class BaseViewModel() : ViewModel() {
                     is Resource.Progress -> {
 
                     }
+                    else -> {}
                 }
             }
         }

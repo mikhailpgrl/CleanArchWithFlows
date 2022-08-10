@@ -14,7 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ProductFragment : BaseDataDrivenFragment() {
 
-    private val productViewModel by viewModels<ProductViewModel>()
+    private val productViewModel: ProductViewModel by viewModels()
 
 
     private var _binding: FragmentFirstBinding? = null
