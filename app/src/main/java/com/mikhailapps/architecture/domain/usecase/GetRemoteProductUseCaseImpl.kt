@@ -6,10 +6,11 @@ import com.mikhailapps.architecture.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetProductUseCaseImpl @Inject constructor(
+class GetRemoteProductUseCaseImpl @Inject constructor(
     private val productRepository: ProductRepository
-) {
-    operator fun invoke(): Flow<Resource<ProductDomainModel>> {
+) : GetRemoteProductUseCase {
+
+    override operator fun invoke(): Flow<Resource<List<ProductDomainModel>>> {
         return productRepository.getRemoteProducts()
     }
 }

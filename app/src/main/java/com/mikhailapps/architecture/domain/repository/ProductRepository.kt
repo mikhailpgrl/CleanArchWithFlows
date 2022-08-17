@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
 
-    fun refreshProducts(): Flow<Resource<ProductDomainModel>>
+    fun getRemoteProducts(): Flow<Resource<List<ProductDomainModel>>>
 
-    fun getRemoteProducts(): Flow<Resource<ProductDomainModel>>
+    fun getLocalProducts(): Flow<Resource<List<ProductDomainModel>>>
 
-
+    fun insertProduct(productDomainModel: ProductDomainModel): Flow<Resource<Nothing>>
 }
