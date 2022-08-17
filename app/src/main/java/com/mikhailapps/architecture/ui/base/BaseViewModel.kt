@@ -1,4 +1,4 @@
-package com.mikhailapps.architecture.ui
+package com.mikhailapps.architecture.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,10 +12,8 @@ open class BaseViewModel() : ViewModel() {
 
     protected fun <T> MutableStateFlow() = MutableStateFlow<Resource<T>>(Resource.idle())
 
-
-    protected fun <T, S> Flow<Resource<T>>.collectRequest(
+    protected fun <T> Flow<Resource<T>>.collectRequest(
         state: MutableStateFlow<Resource<T>>,
-        mappedData: (T) -> S
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             state.value = Resource.loading()
@@ -38,4 +36,28 @@ open class BaseViewModel() : ViewModel() {
         }
     }
 
+    protected fun <T, S> Flow<Resource<T>>.collectRequest(
+        state: MutableStateFlow<Resource<S>>,
+        mappedData: (T?) -> S?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            state.value = Resource.loading()
+            this@collectRequest.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        state.value = Resource.success(mappedData(it.data))
+                    }
+                    is Resource.Failure -> {
+
+                    }
+                    is Resource.Idle -> {
+
+                    }
+                    is Resource.Progress -> {
+
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.mikhailapps.architecture.ui
+package com.mikhailapps.architecture.ui.base
 
 import android.os.Bundle
 import android.view.View
@@ -40,7 +40,27 @@ abstract class BaseDataDrivenFragment : Fragment() {
     abstract fun setUi()
 
 
-    protected fun collectFlowSafely(
+    protected fun <T> StateFlow<Resource<T>>.collectUIState(
+        lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
+        state: ((Resource<T>) -> Unit)? = null,
+        onError: ((error: Throwable) -> Unit),
+        onSuccess: ((data: T?) -> Unit),
+        onProgress: () -> Unit
+    ) {
+        collectFlowSafely(lifecycleState) {
+            this.collect {
+                state?.invoke(it)
+                when (it) {
+                    is Resource.Idle -> {}
+                    is Resource.Progress -> { onProgress.invoke()}
+                    is Resource.Failure -> onError.invoke(it.throwable)
+                    is Resource.Success -> onSuccess.invoke(it.data)
+                }
+            }
+        }
+    }
+
+    private fun collectFlowSafely(
         lifecycleState: Lifecycle.State,
         collect: suspend () -> Unit
     ) {
@@ -53,23 +73,5 @@ abstract class BaseDataDrivenFragment : Fragment() {
         }
     }
 
-    protected fun <T> StateFlow<Resource<T>>.collectUIState(
-        lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
-        state: ((Resource<T>) -> Unit)? = null,
-        onError: ((error: Throwable) -> Unit),
-        onSuccess: ((data: T?) -> Unit)
-    ) {
-        collectFlowSafely(lifecycleState) {
-            this.collect {
-                state?.invoke(it)
-                when (it) {
-                    is Resource.Idle -> {}
-                    is Resource.Progress -> {}
-                    is Resource.Failure -> onError.invoke(it.throwable)
-                    is Resource.Success -> onSuccess.invoke(it.data)
-                }
-            }
-        }
-    }
 
 }

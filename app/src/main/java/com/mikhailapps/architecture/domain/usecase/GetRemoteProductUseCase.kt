@@ -4,7 +4,7 @@ import com.mikhailapps.architecture.domain.Resource
 import com.mikhailapps.architecture.domain.model.ProductDomainModel
 import kotlinx.coroutines.flow.Flow
 
-interface GetProductUseCase {
+interface GetRemoteProductUseCase {
 
-    fun execute(): Flow<Resource<ProductDomainModel>>
+    operator fun invoke(): Flow<Resource<List<ProductDomainModel>>>
 }
