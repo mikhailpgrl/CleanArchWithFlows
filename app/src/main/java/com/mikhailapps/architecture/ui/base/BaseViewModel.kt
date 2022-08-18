@@ -8,55 +8,29 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-open class BaseViewModel() : ViewModel() {
+open class BaseViewModel : ViewModel() {
 
-    protected fun <T> MutableStateFlow() = MutableStateFlow<Resource<T>>(Resource.idle())
+    protected fun <T> MutableStateFlow() = MutableStateFlow<UiState<T>>(UiState.idle())
 
     protected fun <T> Flow<Resource<T>>.collectRequest(
-        state: MutableStateFlow<Resource<T>>,
+        state: MutableStateFlow<UiState<T>>,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            state.value = Resource.loading()
-            this@collectRequest.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        state.value = Resource.success(it.data)
-                    }
-                    is Resource.Failure -> {
-
-                    }
-                    is Resource.Idle -> {
-
-                    }
-                    is Resource.Progress -> {
-
-                    }
-                }
+            state.value = UiState.loading()
+            this@collectRequest.collect { resource ->
+                state.value = resource.asUiState()
             }
         }
     }
 
     protected fun <T, S> Flow<Resource<T>>.collectRequest(
-        state: MutableStateFlow<Resource<S>>,
+        state: MutableStateFlow<UiState<S>>,
         mappedData: (T?) -> S?
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            state.value = Resource.loading()
-            this@collectRequest.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        state.value = Resource.success(mappedData(it.data))
-                    }
-                    is Resource.Failure -> {
-
-                    }
-                    is Resource.Idle -> {
-
-                    }
-                    is Resource.Progress -> {
-
-                    }
-                }
+            state.value = UiState.loading()
+            this@collectRequest.collect { resource ->
+                state.value = resource.asUiState(mappedData)
             }
         }
     }

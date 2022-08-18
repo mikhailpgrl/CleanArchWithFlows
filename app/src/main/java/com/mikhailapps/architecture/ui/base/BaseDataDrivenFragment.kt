@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.mikhailapps.architecture.domain.Resource
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -40,10 +39,10 @@ abstract class BaseDataDrivenFragment : Fragment() {
     abstract fun setUi()
 
 
-    protected fun <T> StateFlow<Resource<T>>.collectUIState(
+    protected fun <T> StateFlow<UiState<T>>.collectUIState(
         lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
-        state: ((Resource<T>) -> Unit)? = null,
-        onError: ((error: Throwable) -> Unit),
+        state: ((UiState<T>) -> Unit)? = null,
+        onError: ((error: String) -> Unit),
         onSuccess: ((data: T?) -> Unit),
         onProgress: () -> Unit
     ) {
@@ -51,10 +50,10 @@ abstract class BaseDataDrivenFragment : Fragment() {
             this.collect {
                 state?.invoke(it)
                 when (it) {
-                    is Resource.Idle -> {}
-                    is Resource.Progress -> { onProgress.invoke()}
-                    is Resource.Failure -> onError.invoke(it.throwable)
-                    is Resource.Success -> onSuccess.invoke(it.data)
+                    is UiState.Idle -> {}
+                    is UiState.Progress -> onProgress.invoke()
+                    is UiState.Failure -> onError.invoke(it.message)
+                    is UiState.Success -> onSuccess.invoke(it.data)
                 }
             }
         }
